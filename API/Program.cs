@@ -23,6 +23,8 @@ namespace API {
 
                         var context = services.GetRequiredService<DataContext> ();
                         context.Database.Migrate (); //to cerrate a new migration
+                        Seed.SeedData(context);
+
                     } catch (Exception ex) {
 
                     var logger = services.GetRequiredService<ILogger<Program>> ();
