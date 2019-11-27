@@ -13,7 +13,7 @@ class App extends Component {
   componentDidMount() {
     // promess based API
     axios.get("http://localhost:5000/api/values").then(response => {
-      console.log(response);
+    
       this.setState({
         values: response.data
       });
