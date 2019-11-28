@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
@@ -25,16 +23,16 @@ namespace DatingApp.API.Controllers {
         // GET api/values
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Value>>> Get () { //
-            var values = await _context.Values.ToListAsync();        // asyng method this is the recomented aproche
-            return Ok(values);                                       // we should make it async whenever possivble 
+            var values = await _context.Values.ToListAsync (); // asyng method this is the recomented aproche
+            return Ok (values); // we should make it async whenever possivble 
         }
 
         // GET api/values/5
         [HttpGet ("{id}")]
         public async Task<ActionResult<Value>> Get (int id) {
 
-            var response = await _context.Values.FindAsync(id);
-            return Ok(response);
+            var response = await _context.Values.FindAsync (id);
+            return Ok (response);
         }
 
         // POST api/values
