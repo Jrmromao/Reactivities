@@ -33,7 +33,7 @@ namespace Appication.Activities {
                 var activity = await _context.Activities.FindAsync (request.Id);
 
                 if (activity == null)
-                    throw new Exception ("Yoooo, bro! Could not fimd Activity...");
+                    throw new Exception ("Yoooo, bro! Could not find Activity...");
 
                 activity.Title = request.Title ?? activity.Title;
                 activity.Description = request.Description ?? activity.Description;

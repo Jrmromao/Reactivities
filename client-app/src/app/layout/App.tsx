@@ -1,10 +1,12 @@
-import React, {  useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment, SyntheticEvent } from "react";
 // import logo from "./logo.svg";
-import axios from "axios";
+// import axios from "axios";
 import { Container } from "semantic-ui-react";
 import { IActivity } from "../models/activity";
 import NavBar from "../../features/nav/NavBar";
 import ActivityDashboard from "../../features/activities/dashboard/ActivityDashboard";
+import agent from "../API/agent";
+import { LoadingComponent } from "./LoadingComponent";
 
 // react functional compo
 
@@ -14,6 +16,12 @@ const App = () => {
     null
   );
   const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [target, setTarget] = useState('');
+
+
+
 
   const handleSelectedActivity = (id: string) => {
     setSelectedActivity(activities.filter(a => a.id === id)[0]);
@@ -26,36 +34,45 @@ const App = () => {
   };
 
   const handleCreateActicity = (activity: IActivity) => {
-    setActivities([...activities, activity]);
-    setSelectedActivity(activity);
-    setEditMode(false);
+    setSubmitting(true);
+    agent.Activities.create(activity).then(() => {
+      setActivities([...activities, activity]);
+      setSelectedActivity(activity);
+      setEditMode(false);
+    }).then(()=>setSubmitting(false));
   };
 
   const handleEditActivity = (activity: IActivity) => {
-    setActivities([...activities.filter(a => a.id !== activity.id), activity]);
-    setSelectedActivity(activity);
-    setEditMode(false);
-  };
+    setSubmitting(true);
+    agent.Activities.update(activity).then(() => {
+      setActivities([...activities.filter(a => a.id !== activity.id), activity]);
+      setSelectedActivity(activity);
+      setEditMode(false);
+    }).then(()=>setSubmitting(false));
 
-  const handleDeleteActivity = (id: string ) => {
-    setActivities([...activities.filter(a =>a.id !== id)]);
-  }
+  }; 
+
+  const handleDeleteActivity = (event: SyntheticEvent<HTMLButtonElement>, id: string) => {
+    setTarget(event.currentTarget.name);
+    setSubmitting(true);
+    agent.Activities.delete(id).then(() => {
+      setActivities([...activities.filter(a => a.id !== id)]);
+    }).then(() => setSubmitting(false));
+  };
 
   useEffect(() => {
     // promess based API. bnow we know that our request is getting an IActivity type
-    axios
-      .get<IActivity[]>("http://localhost:5000/api/activities")
-      .then(response => {
-        let activities: IActivity[] = [];
-        response.data.forEach(activity => {
-          activity.date = activity.date.split('.')[0];
-          activities.push(activity);
-        })
-
-        setActivities(response.data);
+    agent.Activities.list().then(response => {
+      let activities: IActivity[] = [];
+      response.forEach(activity => {
+        activity.date = activity.date.split(".")[0];
+        activities.push(activity);
       });
+      setActivities(response);
+    }).then(() => setLoading(false));
   }, []); // add this empty array to make sure the useEffect method is not called again.
 
+  if(loading) return <LoadingComponent content = 'Loading acticities...'/>
   return (
     <Fragment>
       <NavBar openCreateForm={handleOpenCreateForm} />
@@ -70,7 +87,9 @@ const App = () => {
           setSelectedActivity={setSelectedActivity}
           createActicity={handleCreateActicity}
           editActivity={handleEditActivity}
-          deleteActivity = {handleDeleteActivity}
+          deleteActivity={handleDeleteActivity}
+          submitting={submitting}
+          target={target}
         />
       </Container>
     </Fragment>
