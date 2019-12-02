@@ -15,18 +15,21 @@ class ActivityStore {
         this.editMode = false;
     }
 
-    @action loadActivities = () => {
+    @action loadActivities = async () => {
         this.loadingInitial = true;
         // now lets use our agent to get the activities
         // promess based API. bnow we know that our request is getting an IActivity type
-        agent.Activities.list()
-            .then(activities => {
-                activities.forEach(activity => {
-                    activity.date = activity.date.split(".")[0];
-                    this.activities.push(activity);
-                });
-            }).catch(error => console.log(error))
-            .finally(() => this.loadingInitial = false);
+        try {
+            const activities = await agent.Activities.list();
+            activities.forEach(activity => {
+                activity.date = activity.date.split(".")[0];
+                this.activities.push(activity);
+            });
+            this.loadingInitial = false;
+        } catch (error) {
+            this.loadingInitial = false;
+            console.log(error)
+        }
     }
 }
 
