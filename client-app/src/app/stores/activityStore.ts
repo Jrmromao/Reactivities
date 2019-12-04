@@ -13,15 +13,33 @@ class ActivityStore {
     @observable activity: IActivity | null = null;
     @observable submitting = false;
     @observable target = '';
-
     // this observable 
     @observable activityRegistry = new Map();
     // computed prop to sort the activities by date
     @computed get activitiesByDate() {
         // return the array sorted by date in ascending order
-        return Array.from(this.activityRegistry.values()).sort(
-            (a, b) => Date.parse(a.date) - Date.parse(b.date));
+
+         
+        return  this.groupActivitiesVyDate(Array.from(this.activityRegistry.values()));
     }
+
+
+    groupActivitiesVyDate(activities: IActivity[]) {
+        const sortedActivities = activities.sort((a, b) => Date.parse(a.date) - Date.parse(b.date));
+        return Object.entries(sortedActivities.reduce((activities, activity) =>{
+            const date = activity.date.split('T')[0];
+            activities[date] = activities[date] ? [...activities[date], activity] : [activity];
+
+            return activities;
+        }, {} as {[key: string]: IActivity[]}));
+
+    }
+
+
+
+
+
+
     @action selectActivity = (id: string) => {
         this.activity = this.activityRegistry.get(id);
     }
@@ -38,11 +56,14 @@ class ActivityStore {
                 });
                 this.loadingInitial = false;
             });
+
+
+            
         } catch (error) {
             runInAction('load activities error', () => {
                 this.loadingInitial = false;
             });
-            console.log(error)
+           
         }
     };
     @action createActivity = async (activity: IActivity) => {
@@ -94,8 +115,6 @@ class ActivityStore {
             console.log(error)
         }
     }
-
-
     @action loadactivity = async (id: string) => {
         let activity = this.getActivity(id);
 
@@ -117,12 +136,9 @@ class ActivityStore {
             }
         }
     }
-
-
     @action clearActivity = () => {
         this.activity = null;
     }
-
     getActivity = (id: string) => {
         return this.activityRegistry.get(id);
     }
