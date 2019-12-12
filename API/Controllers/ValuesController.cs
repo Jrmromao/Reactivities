@@ -32,6 +32,10 @@ namespace DatingApp.API.Controllers {
         public async Task<ActionResult<Value>> Get (int id) {
 
             var response = await _context.Values.FindAsync (id);
+
+            if(response == null)
+                return NotFound();
+
             return Ok (response);
         }
 
