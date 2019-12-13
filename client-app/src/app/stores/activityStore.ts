@@ -34,12 +34,6 @@ class ActivityStore {
         }, {} as {[key: string]: IActivity[]}));
 
     }
-
-
-
-
-
-
     @action selectActivity = (id: string) => {
         this.activity = this.activityRegistry.get(id);
     }
@@ -132,7 +126,9 @@ class ActivityStore {
                 runInAction('getting activity error', () => {
                     this.loadingInitial = false;
                 });
-                console.log(error);
+              
+              console.log(error);
+                
             }
         }
     }
